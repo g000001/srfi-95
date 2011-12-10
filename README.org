@@ -1,0 +1,7 @@
+* srfi-95
+- http://cvs.savannah.gnu.org/viewvc/slib/slib/sort.scm?view=markup
+
+"sort.scm" Defines: sorted?, merge, merge!, sort, sort!
+Author : Richard A. O'Keefe (based on Prolog code by D.H.D.Warren)
+
+This code is in the public domain.
