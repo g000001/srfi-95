@@ -1,6 +1,6 @@
 ;;;; srfi-95.lisp
 
-(cl:in-package :srfi-95.internal)
+(cl:in-package "https://github.com/g000001/srfi-95#internals")
 
 ;;; "sort.scm" Defines: sorted?, merge, merge!, sort, sort!
 ;;; Author : Richard A. O'Keefe (based on Prolog code by D.H.D.Warren)
@@ -68,7 +68,7 @@
 		   (cons x (cons y b))
 		   (cons x (loop (car a) (funcall key (car a)) (cdr a) y ky b))))))))
 
-(defun |SORT:MERGE!| (a b less? key)
+(defun sort$merge! (a b less? key)
   (labels ((loop (r a kcara b kcarb)
                  (cond ((funcall less? kcarb kcara)
                         (setf (cdr r) b)
@@ -102,9 +102,9 @@
 ;;; Note:  this does _not_ accept arrays.
 ;@
 (defun merge! (a b less? &optional (opt-key #'identity))
-  (|SORT:MERGE!| a b less? opt-key))
+  (sort$merge! a b less? opt-key))
 
-(defun |SORT:SORT-LIST!| (seq less? &optional key)
+(defun sort$sort-list! (seq less? &optional key)
   (flet ((keyer (x &aux (key (if key #'car #'identity)))
            (funcall key x)))
     (labels ((step (n)
@@ -112,7 +112,7 @@
                                      (a (step j))
                                      (k (- n j))
                                      (b (step k)))
-                                (|SORT:MERGE!| a b less? #'keyer)))
+                                (sort$merge! a b less? #'keyer)))
                      ((= n 2) (let ((x (car seq))
                                     (y (cadr seq))
                                     (p seq))
@@ -160,13 +160,13 @@
 ;@
 (defun sort! (seq less? &optional opt-key)
   (cond ((arrayp seq)
-	 (do ((sorted (|SORT:SORT-LIST!| (rank-1-array->list seq) less? opt-key)
+	 (do ((sorted (sort$sort-list! (rank-1-array->list seq) less? opt-key)
 		      (cdr sorted))
 	      (i 0 (+ i 1)))
 	     ((null sorted) seq)
 	   (setf (aref seq (car sorted)) i)))
 	(:else			      ; otherwise, assume it is a list
-	 (let ((ret (|SORT:SORT-LIST!| seq less? opt-key)))
+	 (let ((ret (sort$sort-list! seq less? opt-key)))
 	   (if (not (eq ret seq))
 	       (do ((crt ret (cdr crt)))
 		   ((eq (cdr crt) seq)
@@ -186,11 +186,11 @@
 (defun sort (seq less? &optional opt-key)
   (cond ((arrayp seq)
 	 (let ((newra (copy-seq seq)))
-	   (do ((sorted (|SORT:SORT-LIST!| (rank-1-array->list seq) less? opt-key)
+	   (do ((sorted (sort$sort-list! (rank-1-array->list seq) less? opt-key)
 			(cdr sorted))
 		(i 0 (+ i 1)))
 	       ((null sorted) newra)
 	     (setf (aref newra i) (car sorted)))))
-	(:else (|SORT:SORT-LIST!| (append seq '()) less? opt-key))))
+	(:else (sort$sort-list! (append seq '()) less? opt-key))))
 
 ;;; eof
